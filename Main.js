@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { ScrollView, View, Text, TextInput, StyleSheet } from "react-native";
 import CategoryList from "./CategoryList";
 import ProductList from "./ProductList";
+import AddCategory from "./AddCategory";
 
-const categories = [
+const startCategories = [
   { id: "1", title: "Фрукти та овочі", icon: "🍏", color: "#d9f5e0" },
   { id: "2", title: "Молочні продукти", icon: "🥛", color: "#dbe9fb" },
   { id: "3", title: "М'ясо та риба", icon: "🥩", color: "#fcdcdc" },
@@ -16,9 +18,15 @@ const products = [
 ];
 
 export default function Main() {
+  const [categories, setCategories] = useState(startCategories);
+
+  function addCategory(newCategory) {
+    setCategories([...categories, newCategory]);
+  }
+
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.hello}>Добро пожаловать</Text>
+      <Text style={styles.hello}>Ласкаво просимо</Text>
       <Text style={styles.small}>Раді бачити тебе знову!</Text>
 
       <TextInput style={styles.search} placeholder="Пошук товарів..." />
@@ -30,6 +38,8 @@ export default function Main() {
 
       <Text style={styles.title}>Категорії</Text>
       <CategoryList data={categories} />
+
+      <AddCategory onAdd={addCategory} />
 
       <Text style={styles.title}>Популярні товари</Text>
       <ProductList data={products} />
