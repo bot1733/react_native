@@ -1,23 +1,26 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 
-export default function Product({ name, price, rating, icon }) {
+export default function Product({ name, price, unit, rating, icon, isFavorite, onToggleFavorite, onAdd }) {
   return (
     <View style={styles.card}>
-      <Text style={styles.heart}>♡</Text>
+      <Pressable style={styles.starBox} onPress={onToggleFavorite}>
+        <Text style={styles.star}>{isFavorite ? "⭐" : "☆"}</Text>
+      </Pressable>
       <Text style={styles.icon}>{icon}</Text>
       <Text style={styles.name}>{name}</Text>
-      <Text style={styles.price}>{price} ₴/кг</Text>
-      <Text style={styles.rating}>⭐ {rating}</Text>
-      <View style={styles.button}>
+      <Text style={styles.price}>{price} ₴/{unit}</Text>
+      <Text style={styles.rating}>Рейтинг: {rating}</Text>
+      <Pressable style={styles.button} onPress={onAdd}>
         <Text style={styles.buttonText}>🛒 Додати</Text>
-      </View>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: "white", borderRadius: 12, padding: 10, margin: 5 },
-  heart: { position: "absolute", right: 10, top: 8, fontSize: 18 },
+  starBox: { position: "absolute", right: 10, top: 8, zIndex: 1, padding: 4 },
+  star: { fontSize: 22 },
   icon: { fontSize: 50, textAlign: "center", marginVertical: 8 },
   name: { fontWeight: "bold" },
   price: { fontWeight: "bold", marginTop: 2 },

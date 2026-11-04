@@ -25,8 +25,12 @@ export default function AddCategory({ onAdd }) {
 
   return (
     <View>
-      <Pressable style={styles.smallButton} onPress={() => setVisible(true)}>
-        <Text style={styles.smallButtonText}>ADD</Text>
+      <Pressable
+        style={styles.plusButton}
+        onPress={() => setVisible(true)}
+        accessibilityLabel="Додати категорію"
+      >
+        <Text style={styles.plusText}>+</Text>
       </Pressable>
 
       <Modal visible={visible} animationType="slide" onRequestClose={() => setVisible(false)}>
@@ -46,15 +50,17 @@ export default function AddCategory({ onAdd }) {
 }
 
 const styles = StyleSheet.create({
-  smallButton: {
+  plusButton: {
     alignSelf: "flex-start",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: "#2196f3",
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 10,
   },
-  smallButtonText: { color: "white", fontWeight: "bold" },
+  plusText: { color: "white", fontSize: 26, fontWeight: "bold", marginTop: -2 },
   window: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "#f5f5f5" },
   header: { fontSize: 20, fontWeight: "bold", textAlign: "center", marginBottom: 15 },
   input: { backgroundColor: "white", borderWidth: 1, borderColor: "gray", padding: 8, marginBottom: 10 },

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ScrollView, View, Text, TextInput, StyleSheet } from "react-native";
-import CategoryList from "./CategoryList";
-import ProductList from "./ProductList";
-import AddCategory from "./AddCategory";
+import { ScrollView, Text, TextInput, StyleSheet } from "react-native";
+import CategoryList from "../components/CategoryList";
+import ProductList from "../components/ProductList";
+import AddCategory from "../components/AddCategory";
+import { products } from "../data/products";
 
 const startCategories = [
   { id: "1", title: "Фрукти та овочі", icon: "🍏", color: "#d9f5e0" },
@@ -12,12 +13,7 @@ const startCategories = [
   { id: "5", title: "Напої", icon: "🥤", color: "#fff1cc" },
 ];
 
-const products = [
-  { id: "1", name: "Банани", price: 59, rating: 4.8, icon: "🍌" },
-  { id: "2", name: "Помідори", price: 89, rating: 4.8, icon: "🍅" },
-];
-
-export default function Main() {
+export default function Main({ favoriteIds, onToggleFavorite, onAddToCart }) {
   const [categories, setCategories] = useState(startCategories);
 
   function addCategory(newCategory) {
@@ -31,18 +27,18 @@ export default function Main() {
 
       <TextInput style={styles.search} placeholder="Пошук товарів..." />
 
-      <View style={styles.banner}>
-        <Text style={styles.bannerTitle}>Свіжі продукти для вашого столу</Text>
-        <Text style={styles.small}>Овочі, фрукти, молочні продукти та багато іншого</Text>
-      </View>
-
       <Text style={styles.title}>Категорії</Text>
       <CategoryList data={categories} />
 
       <AddCategory onAdd={addCategory} />
 
       <Text style={styles.title}>Популярні товари</Text>
-      <ProductList data={products} />
+      <ProductList
+        data={products}
+        favoriteIds={favoriteIds}
+        onToggleFavorite={onToggleFavorite}
+        onAddToCart={onAddToCart}
+      />
     </ScrollView>
   );
 }
@@ -52,7 +48,5 @@ const styles = StyleSheet.create({
   hello: { fontSize: 20, fontWeight: "bold" },
   small: { color: "gray", fontSize: 12 },
   search: { backgroundColor: "white", borderRadius: 10, padding: 10, marginTop: 15 },
-  banner: { backgroundColor: "#d9f5e0", borderRadius: 15, padding: 20, marginTop: 15 },
-  bannerTitle: { fontSize: 18, fontWeight: "bold" },
   title: { fontSize: 18, fontWeight: "bold", marginTop: 20, marginBottom: 10 },
 });
