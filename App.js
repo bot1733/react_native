@@ -1,16 +1,42 @@
 import { useState } from "react";
-import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  useColorScheme,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import Main from "./src/screens/Main";
 import Favorites from "./src/screens/Favorites";
 import Cart from "./src/screens/Cart";
+import Profile from "./src/screens/Profile";
 import { products } from "./src/data/products";
+import { ThemeContext, lightColors, darkColors } from "./src/theme";
+
+const tabs = [
+  { name: "main", label: "Головна", icon: "home" },
+  { name: "favorites", label: "Обране", icon: "star" },
+  { name: "cart", label: "Кошик", icon: "cart" },
+  { name: "profile", label: "Профіль", icon: "person" },
+];
 
 export default function App() {
   const [screen, setScreen] = useState("main");
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [cart, setCart] = useState([]);
+  const [avatarUri, setAvatarUri] = useState(null);
+  const systemScheme = useColorScheme();
+  const [isDark, setIsDark] = useState(systemScheme === "dark");
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
+
+  const colors = isDark ? darkColors : lightColors;
+
+  function toggleTheme() {
+    setIsDark(!isDark);
+  }
 
   function toggleFavorite(id) {
     if (favoriteIds.includes(id)) {
@@ -43,11 +69,6 @@ export default function App() {
     return { ...product, qty: item.qty };
   });
 
-  let cartCount = 0;
-  for (const item of cart) {
-    cartCount = cartCount + item.qty;
-  }
-
   let content = (
     <Main
       favoriteIds={favoriteIds}
@@ -61,27 +82,55 @@ export default function App() {
   if (screen === "cart") {
     content = <Cart items={cartItems} onChangeQty={changeQty} />;
   }
+  if (screen === "profile") {
+    content = <Profile avatarUri={avatarUri} onChangeAvatar={setAvatarUri} />;
+  }
 
   return (
-    <View style={[styles.container, isLandscape && styles.containerLandscape]}>
-      <View style={styles.content}>{content}</View>
+    <ThemeContext.Provider value={{ colors, isDark, toggleTheme }}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.background },
+          isLandscape && styles.containerLandscape,
+        ]}
+      >
+        <View style={styles.content}>{content}</View>
 
-      <View style={[styles.tabs, isLandscape && styles.tabsLandscape]}>
-        <Pressable style={styles.tab} onPress={() => setScreen("main")}>
-          <Text style={screen === "main" ? styles.active : styles.text}>🏠 Головна</Text>
-        </Pressable>
-        <Pressable style={styles.tab} onPress={() => setScreen("favorites")}>
-          <Text style={screen === "favorites" ? styles.active : styles.text}>
-            ⭐ Обране ({favoriteIds.length})
-          </Text>
-        </Pressable>
-        <Pressable style={styles.tab} onPress={() => setScreen("cart")}>
-          <Text style={screen === "cart" ? styles.active : styles.text}>
-            🛒 Кошик ({cartCount})
-          </Text>
-        </Pressable>
+        <View
+          style={[
+            styles.tabs,
+            { backgroundColor: colors.tabBar },
+            isLandscape && styles.tabsLandscape,
+          ]}
+        >
+          {tabs.map((tab) => {
+            const active = screen === tab.name;
+            const color = active ? colors.accent : colors.subtext;
+            return (
+              <Pressable
+                key={tab.name}
+                style={styles.tab}
+                onPress={() => setScreen(tab.name)}
+                accessibilityLabel={tab.label}
+              >
+                <Ionicons
+                  name={active ? tab.icon : tab.icon + "-outline"}
+                  size={24}
+                  color={color}
+                />
+                <Text
+                  style={[styles.tabLabel, { color: color }, active && styles.tabLabelActive]}
+                  numberOfLines={1}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </ThemeContext.Provider>
   );
 }
 
@@ -89,9 +138,9 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   containerLandscape: { flexDirection: "row-reverse" },
   content: { flex: 1 },
-  tabs: { flexDirection: "row", backgroundColor: "white", paddingBottom: 20, paddingTop: 10 },
+  tabs: { flexDirection: "row", paddingBottom: 20, paddingTop: 8 },
   tabsLandscape: { flexDirection: "column", width: 110, paddingTop: 30, justifyContent: "flex-start" },
   tab: { flex: 1, alignItems: "center", justifyContent: "center" },
-  text: { color: "gray" },
-  active: { color: "green", fontWeight: "bold" },
+  tabLabel: { fontSize: 11, marginTop: 2 },
+  tabLabelActive: { fontWeight: "bold" },
 });

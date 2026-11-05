@@ -4,6 +4,7 @@ import CategoryList from "../components/CategoryList";
 import ProductList from "../components/ProductList";
 import AddCategory from "../components/AddCategory";
 import { products } from "../data/products";
+import { useTheme } from "../theme";
 
 const startCategories = [
   { id: "1", title: "Фрукти та овочі", icon: "🍏", color: "#d9f5e0" },
@@ -14,39 +15,63 @@ const startCategories = [
 ];
 
 export default function Main({ favoriteIds, onToggleFavorite, onAddToCart }) {
+  const { colors } = useTheme();
   const [categories, setCategories] = useState(startCategories);
+  const [selectedId, setSelectedId] = useState(null);
 
   function addCategory(newCategory) {
     setCategories([...categories, newCategory]);
   }
 
+  function selectCategory(id) {
+    if (id === selectedId) {
+      setSelectedId(null);
+    } else {
+      setSelectedId(id);
+    }
+  }
+
+  let shownProducts = [...products].sort((a, b) => b.reviews - a.reviews).slice(0, 6);
+  let listTitle = "Популярні товари";
+  if (selectedId !== null) {
+    shownProducts = products.filter((item) => item.categoryId === selectedId);
+    const selectedCategory = categories.find((item) => item.id === selectedId);
+    listTitle = selectedCategory.title;
+  }
+
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.hello}>Ласкаво просимо</Text>
-      <Text style={styles.small}>Раді бачити тебе знову!</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <TextInput
+        style={[styles.search, { backgroundColor: colors.input, color: colors.text }]}
+        placeholder="Пошук товарів..."
+        placeholderTextColor={colors.subtext}
+      />
 
-      <TextInput style={styles.search} placeholder="Пошук товарів..." />
-
-      <Text style={styles.title}>Категорії</Text>
-      <CategoryList data={categories} />
+      <Text style={[styles.title, { color: colors.text }]}>Категорії</Text>
+      <CategoryList data={categories} selectedId={selectedId} onSelect={selectCategory} />
 
       <AddCategory onAdd={addCategory} />
 
-      <Text style={styles.title}>Популярні товари</Text>
-      <ProductList
-        data={products}
-        favoriteIds={favoriteIds}
-        onToggleFavorite={onToggleFavorite}
-        onAddToCart={onAddToCart}
-      />
+      <Text style={[styles.title, { color: colors.text }]}>{listTitle}</Text>
+      {shownProducts.length === 0 ? (
+        <Text style={[styles.empty, { color: colors.subtext }]}>
+          У цій категорії поки немає товарів.
+        </Text>
+      ) : (
+        <ProductList
+          data={shownProducts}
+          favoriteIds={favoriteIds}
+          onToggleFavorite={onToggleFavorite}
+          onAddToCart={onAddToCart}
+        />
+      )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 50, paddingHorizontal: 15, backgroundColor: "#f5f5f5" },
-  hello: { fontSize: 20, fontWeight: "bold" },
-  small: { color: "gray", fontSize: 12 },
-  search: { backgroundColor: "white", borderRadius: 10, padding: 10, marginTop: 15 },
+  container: { flex: 1, paddingTop: 50, paddingHorizontal: 15 },
+  search: { borderRadius: 10, padding: 10 },
   title: { fontSize: 18, fontWeight: "bold", marginTop: 20, marginBottom: 10 },
+  empty: { textAlign: "center", marginTop: 20 },
 });
